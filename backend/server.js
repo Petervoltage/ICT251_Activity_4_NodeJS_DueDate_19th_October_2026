@@ -75,7 +75,32 @@ app.delete('/api/timetable/:id', (req, res) => {
     writeData(filteredRecords);
     res.json({ success: true, message: 'Record deleted successfully' });
 });
+// PUT /api/timetable/:id -> Update a record
+app.put('/api/timetable/:id', (req, res) => {
+    const id = parseInt(req.params.id);
+    const { course_code, course_name, day_of_week, start_time, end_time, venue, goal_notes } = req.body;
+    
+    let records = readData();
+    const index = records.findIndex(r => r.id === id);
 
+    if (index === -1) {
+        return res.status(404).json({ error: 'Record not found' });
+    }
+
+    records[index] = {
+        ...records[index],
+        course_code: course_code || records[index].course_code,
+        course_name: course_name || records[index].course_name,
+        day_of_week: day_of_week !== undefined ? day_of_week : records[index].day_of_week,
+        start_time: start_time !== undefined ? start_time : records[index].start_time,
+        end_time: end_time !== undefined ? end_time : records[index].end_time,
+        venue: venue !== undefined ? venue : records[index].venue,
+        goal_notes: goal_notes !== undefined ? goal_notes : records[index].goal_notes
+    };
+
+    writeData(records);
+    res.json({ success: true, message: 'Record updated successfully', data: records[index] });
+});
 app.listen(PORT, () => {
     console.log(`Server is running smoothly on http://localhost:${PORT}`);
 });
